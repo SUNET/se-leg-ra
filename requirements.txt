@@ -1,0 +1,6 @@
+-i https://pypi.sunet.se
+Flask>=0.12.2
+Flask_WTF>=0.14.2
+eduid-userdb>=0.4.0b0
+requests>=2.18.4
+

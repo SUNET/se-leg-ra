@@ -1,0 +1,24 @@
+{% extends "base.jinja2" %}
+{% from "_helpers.jinja2" import render_field, render_button, render_alert, render_username %}
+
+{% block title %}{{ super() }} - Verifiera{% endblock %}
+
+{% block content %}
+    <div class="panel panel-default">
+        <div class="panel-heading">
+            <h3 class="panel-title">Identifiering <span class="pull-right">{{ render_username(view_context.user) }} (<a href="{{ url_for('se_leg_ra.logout') }}">Logga ut</a>)</span></h3>
+        </div>
+        {% if not view_context.success_message and not view_context.error_message %}
+            {% block form %}{% endblock %}
+        {% else %}
+            <div class="panel-body">
+                {% if view_context.success_message %}
+                    {{ render_alert("success", view_context.success_message) }}
+                {% endif %}
+                {% if view_context.error_message %}
+                    {{ render_alert("danger", view_context.success_message) }}
+                {% endif %}
+            </div>
+        {% endif %}
+    </div>
+{% endblock %}

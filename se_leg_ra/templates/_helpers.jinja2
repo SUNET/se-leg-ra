@@ -1,0 +1,53 @@
+{% macro render_field(field, autofocus=False) %}
+    {% if field.type == "BooleanField" %}
+        <div class="form-group form-group-lg">
+            <div class="col-sm-offset-4 col-sm-12">
+                <label for="{{ field.name }}">
+                    <input id={{ field.name }} name={{ field.name }} value="y" type="checkbox"> {{ field.description }}
+                </label>
+            </div>
+        </div>
+    {% else %}
+        <div class="form-group form-group-lg">
+            <label class="col-sm-4 control-label" for="{{ field.name }}">{{ field.label }}</label>
+            <div class="col-sm-8">
+                {{ field(class='form-control', id=field.name, placeholder=field.description, autofocus=autofocus) }}
+                {% if field.errors %}
+                    {% for error in field.errors %}
+                        <p class="text-danger">{{ error }}</p>
+                    {% endfor %}
+                {% endif %}
+            </div>
+        </div>
+    {% endif %}
+{% endmacro %}
+
+{% macro render_button() %}
+    <button type="submit" class="btn btn-primary btn-block">Skicka</button>
+{% endmacro %}
+
+{% macro render_alert(type, message) %}
+    <div class="alert alert-{{ type }} fade in" role="alert">
+        <p class="text-center">{{ message }}</p>
+        <p class="text-center"><a href="{{ url_for('se_leg_ra.index') }}" class="alert-link">Tillbaka</a></p>
+    </div>
+{% endmacro %}
+
+{% macro render_navtabs(active_tab) %}
+    <ul class="nav nav-pills" role="tablist">
+        <li role="presentation" {% if active_tab == 'id_card' %}class="active"{% endif %}><a href="{{ url_for('se_leg_ra.id_card') }}" aria-controls="id-card" role="tab">ID-kort</a></li>
+        <li role="presentation" {% if active_tab == 'drivers_license' %}class="active"{% endif %}><a href="{{ url_for('se_leg_ra.drivers_license') }}" aria-controls="drivers-license" role="tab">Körkort</a></li>
+        <li role="presentation" {% if active_tab == 'passport' %}class="active"{% endif %}><a href="{{ url_for('se_leg_ra.passport') }}" aria-controls="passport" role="tab">Pass</a></li>
+    </ul>
+{% endmacro %}
+
+
+{% macro render_username(user) %}
+    {% if user.display_name %}
+        {{ user.display_name }}
+    {% elif user.given_name or user.surname %}
+        {{ user.given_name or '' }} {{ user.surname or '' }}
+    {% else %}
+        Inloggad
+    {% endif %}
+{% endmacro %}
