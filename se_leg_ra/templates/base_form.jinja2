@@ -16,7 +16,7 @@
                     {{ render_alert("success", view_context.success_message) }}
                 {% endif %}
                 {% if view_context.error_message %}
-                    {{ render_alert("danger", view_context.success_message) }}
+                    {{ render_alert("danger", view_context.error_message) }}
                 {% endif %}
             </div>
         {% endif %}

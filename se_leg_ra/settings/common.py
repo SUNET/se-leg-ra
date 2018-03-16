@@ -26,3 +26,7 @@ LOG_LEVEL = 'INFO'
 
 # App settings
 LOGOUT_URL = ''
+
+# Authentication info for OP
+RA_APP_ID = ''
+RA_APP_SECRET = ''

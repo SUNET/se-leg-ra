@@ -1,10 +1,11 @@
 # -*- coding: utf-8 -*-
 
-from __future__ import absolute_import
-
+import requests
 from flask import Blueprint, current_app, render_template, url_for, request, redirect
 from se_leg_ra.forms import BaseForm, PassportForm
 from se_leg_ra.decorators import require_eppn
+from se_leg_ra.db import IdCardProofing, DriversLicenseProofing, PassportProofing
+from se_leg_ra.utils import log_and_send_proofing, compute_credibility_score
 
 __author__ = 'lundberg'
 
@@ -40,19 +41,50 @@ def id_card(user):
 
     if form.validate_on_submit():
         current_app.logger.debug('id_card form validated')
-        view_context['success_message'] = 'Verifiering mha. id-kort har skickats.'
+        data = {
+            'qr_code': form.qr_code.data,
+            'nin': form.nin.data,
+            'ocular_validation': form.ocular_validation.data
+        }
+        current_app.logger.debug('Form data: {}'.format(data))
+        # Compute credibility score
+        credibility_data = {'ocular_validation': data['ocular_validation']}
+        credibility_score = compute_credibility_score(credibility_data)
+        # Log the vetting attempt
+        proofing_element = IdCardProofing(current_app.config['RA_APP_ID'], user['eppn'], data['nin'],
+                                          data['qr_code'], data['ocular_validation'], credibility_score, '2018v1')
+        if log_and_send_proofing(proofing_element, identity=data['nin']):
+            view_context['success_message'] = 'Verifiering mottagen'
+        else:
+            view_context['error_message'] = 'Ingen kontakt med verifieringstjänsten. Vänligen försök igen senare.'
 
     return render_template('id_card.jinja2', view_context=view_context)
 
 
-@se_leg_ra_views.route('/driverce-license', methods=['GET', 'POST'])
+@se_leg_ra_views.route('/drivers-license', methods=['GET', 'POST'])
 @require_eppn
 def drivers_license(user):
     form = BaseForm()
     view_context = get_view_context(form, user)
 
     if form.validate_on_submit():
-        view_context['success_message'] = 'Verifiering mha. körkort har skickats.'
+        data = {
+            'qr_code': form.qr_code.data,
+            'nin': form.nin.data,
+            'ocular_validation': form.ocular_validation.data
+        }
+        current_app.logger.debug('Form data: {}'.format(data))
+        # Compute credibility score
+        credibility_data = {'ocular_validation': data['ocular_validation']}
+        credibility_score = compute_credibility_score(credibility_data)
+        # Log the vetting attempt
+        proofing_element = DriversLicenseProofing(current_app.config['RA_APP_ID'], user['eppn'], data['nin'],
+                                                  data['qr_code'], data['ocular_validation'], credibility_score,
+                                                  '2018v1')
+        if log_and_send_proofing(proofing_element, identity=data['nin']):
+            view_context['success_message'] = 'Verifiering mottagen'
+        else:
+            view_context['error_message'] = 'Ingen kontakt med verifieringstjänsten. Vänligen försök igen senare.'
 
     return render_template('drivers_license.jinja2', view_context=view_context)
 
@@ -64,7 +96,24 @@ def passport(user):
     view_context = get_view_context(form, user)
 
     if form.validate_on_submit():
-        view_context['success_message'] = 'Verifiering mha. pass har skickats.'
+        data = {
+            'qr_code': form.qr_code.data,
+            'nin': form.nin.data,
+            'passport_number': form.passport_number.data,
+            'ocular_validation': form.ocular_validation.data
+        }
+        current_app.logger.debug('Form data: {}'.format(data))
+        # Compute credibility score
+        credibility_data = {'ocular_validation': data['ocular_validation']}
+        credibility_score = compute_credibility_score(credibility_data)
+        # Log the vetting attempt
+        proofing_element = PassportProofing(current_app.config['RA_APP_ID'], user['eppn'], data['nin'],
+                                            data['passport_number'], data['qr_code'], data['ocular_validation'],
+                                            credibility_score, '2018v1')
+        if log_and_send_proofing(proofing_element, identity=data['nin']):
+            view_context['success_message'] = 'Verifiering mottagen'
+        else:
+            view_context['error_message'] = 'Ingen kontakt med verifieringstjänsten. Vänligen försök igen senare.'
 
     return render_template('passport.jinja2', view_context=view_context)
 

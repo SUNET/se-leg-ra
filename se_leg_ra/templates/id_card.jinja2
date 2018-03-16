@@ -14,7 +14,7 @@
                 <form class="form-horizontal well" id="id-card-form" action="{{ view_context.action_url }}" method="POST">
                     {{ view_context.form.csrf_token }}
                     {{ render_field(view_context.form.qr_code, autofocus=True) }}
-                    {{ render_field(view_context.form.identity) }}
+                    {{ render_field(view_context.form.nin) }}
                     {{ render_field(view_context.form.ocular_validation) }}
                     {{ render_button() }}
                 </form>

@@ -5,7 +5,8 @@ from __future__ import absolute_import
 import logging
 from flask import Flask, current_app
 from werkzeug.contrib.fixers import ProxyFix
-from se_leg_ra.db import UserDB
+from flask_wtf.csrf import CSRFProtect
+from se_leg_ra.db import UserDB, ProofingLog
 from se_leg_ra.utils import urlappend
 
 
@@ -63,6 +64,7 @@ def init_se_leg_ra_app(name=None, config=None):
     # Init other
     app.wsgi_app = ProxyFix(app.wsgi_app)
     app.url_map.strict_slashes = False
+    CSRFProtect(app)
     app = init_template_functions(app)
 
     # Register views
@@ -74,6 +76,9 @@ def init_se_leg_ra_app(name=None, config=None):
     app.logger.info('user_db initialized')
     app.user_db.setup_indexes({'index-eppn': {'key': [('eppn', 1)], 'unique': True, 'background': True}, })
     app.logger.info('user_db indexing started')
+
+    app.proofing_log = ProofingLog(db_uri=app.config['MONGO_URI'])
+    app.logger.info('proofing_log initialized')
 
     app.logger.info('{!s} initialized'.format(name))
     return app

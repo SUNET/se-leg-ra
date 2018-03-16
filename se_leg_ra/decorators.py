@@ -13,7 +13,7 @@ def require_eppn(f):
         # If the logged in user is whitelisted then we
         # pass on the request to the decorated view
         # together with a dict of user attributes.
-        if current_app.user_db.is_whitelisted(eppn):
+        if eppn and current_app.user_db.is_whitelisted(eppn):
             user = {
                 'eppn': eppn,
                 'given_name': request.environ.pop('HTTP_GIVENNAME', None),
