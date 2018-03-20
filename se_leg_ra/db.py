@@ -104,8 +104,31 @@ class ProofingLogElement(LogElement):
     def __repr__(self):
         return '<se-leg {!s}: {!r}>'.format(self.__class__.__name__, self._data)
 
+    @property
+    def opaque(self):
+        return self._data['opaque']
 
-class IdCardProofing(ProofingLogElement):
+    @property
+    def credibility_score(self):
+        return self._data['credibility_score']
+
+    @property
+    def proofing_method(self):
+        return self._data['proofing_method']
+
+    @property
+    def proofing_version(self):
+        return self._data['proofing_version']
+
+
+class NinIdentityProofingElement(ProofingLogElement):
+
+    @property
+    def identity(self):
+        return self._data['nin']
+
+
+class IdCardProofing(NinIdentityProofingElement):
     """
     {
         'created_ts': datetime.utcnow()
@@ -153,7 +176,7 @@ class IdCardProofing(ProofingLogElement):
         self._data['nin'] = nin
 
 
-class DriversLicenseProofing(ProofingLogElement):
+class DriversLicenseProofing(NinIdentityProofingElement):
     """
     {
         'created_ts': datetime.utcnow()
@@ -202,7 +225,7 @@ class DriversLicenseProofing(ProofingLogElement):
         self._data['nin'] = nin
 
 
-class PassportProofing(ProofingLogElement):
+class PassportProofing(NinIdentityProofingElement):
     """
     {
         'created_ts': datetime.utcnow()
@@ -254,7 +277,7 @@ class PassportProofing(ProofingLogElement):
         self._data['passport_number'] = passport_number
 
 
-class NationalIdCardProofing(ProofingLogElement):
+class NationalIdCardProofing(NinIdentityProofingElement):
     """
     {
         'created_ts': datetime.utcnow()

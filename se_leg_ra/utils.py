@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 
 import datetime
+import requests
+from requests.auth import HTTPBasicAuth
 from flask import current_app
 
 __author__ = 'lundberg'
@@ -64,9 +66,28 @@ def log_and_send_proofing(proofing_element, identity):
     :return: True/False
     :rtype: bool
     """
+    vetting_endpoint = current_app.config['VETTING_ENDPOINT']
+    ra_app_secret = current_app.config['RA_APP_SECRET']
     if current_app.proofing_log.save(proofing_element):
         current_app.logger.info('Saved proofing element.')
         current_app.logger.debug('{}'.format(proofing_element))
-        # TODO: Post data to op
+        try:
+            data = {
+                'identity': proofing_element.identity,
+                'qrcode': proofing_element.opaque,
+                'meta': {
+                    'score': proofing_element.credibility_score,
+                    'proofing_method': proofing_element.proofing_method,
+                    'proofing_version': proofing_element.proofing_version
+                }
+            }
+            r = requests.post(vetting_endpoint, json=data,
+                              auth=HTTPBasicAuth(proofing_element.created_by, ra_app_secret))
+            if r.status_code != 200:
+                current_app.logger.error('Bad request to vetting endpoint: {}'.format(r.content))
+                return False
+        except requests.RequestException as e:
+            current_app.logger.error('Could not reach the vetting endpoint: {}'.format(e))
+            return False
         return True
     return False
