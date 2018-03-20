@@ -4,6 +4,7 @@ from __future__ import absolute_import
 
 from unittest import TestCase
 from flask import request
+from datetime import datetime
 from eduid_userdb.testing import MongoTemporaryInstance
 from se_leg_ra.app import init_se_leg_ra_app
 from se_leg_ra.forms import input_validator, qr_validator, nin_validator, passport_number_validator
@@ -39,6 +40,7 @@ class SeLegRATests(TestCase):
 
         self.client = self.app.test_client()
         self.auth_env = {'HTTP_EPPN': self.test_user_eppn}
+        self.todays_date = datetime.date(datetime.now())
         super(SeLegRATests, self).setUp()
 
     def tearDown(self):
@@ -81,6 +83,7 @@ class SeLegRATests(TestCase):
         qr_code = '1{"token": "a_token", "nonce": "a_nonce"}'
         nin = '190001021234'
         rv = self.client.post(end_point, environ_base=self.auth_env, data={'qr_code': qr_code, 'nin': nin,
+                                                                           'expiry_date': str(self.todays_date),
                                                                            'ocular_validation': True,
                                                                            'csrf_token': 'bogus token'})
 
@@ -109,6 +112,7 @@ class SeLegRATests(TestCase):
         qr_code = '1{"token": "a_token", "nonce": "a_nonce"}'
         nin = '190001021234'
         rv = self.client.post(end_point, environ_base=self.auth_env, data={'qr_code': qr_code, 'nin': nin,
+                                                                           'expiry_date': str(self.todays_date),
                                                                            'ocular_validation': True,
                                                                            'csrf_token': 'bogus token'})
 
@@ -139,7 +143,41 @@ class SeLegRATests(TestCase):
         qr_code = '1{"token": "a_token", "nonce": "a_nonce"}'
         nin = '190001021234'
         rv = self.client.post(end_point, environ_base=self.auth_env, data={'qr_code': qr_code, 'nin': nin,
+                                                                           'expiry_date': str(self.todays_date),
                                                                            'passport_number': '12345678',
+                                                                           'ocular_validation': True,
+                                                                           'csrf_token': 'bogus token'})
+
+        self.assertEqual(rv.status_code, 200)
+        self.assertIn(str.encode('Verifiering mottagen'), rv.data)
+        self.assertEqual(self.app.proofing_log.db_count(), 1)
+
+    def test_national_id_card(self):
+        end_point = '/national-id-card'
+        rv = self.client.get(end_point, environ_base=self.auth_env)
+        self.assertEqual(rv.status_code, 200)
+
+        # Blank form
+        rv = self.client.post(end_point, environ_base=self.auth_env, data={'csrf_token': 'bogus token'})
+        self.assertEqual(rv.status_code, 200)
+        self.assertIn(str.encode(input_validator.message), rv.data)
+
+        # Invalid form input
+        rv = self.client.post(end_point, environ_base=self.auth_env,
+                              data={'qr_code': 'test', 'nin': 'test', 'card_number': 'test',
+                                    'csrf_token': 'bogus token'})
+        self.assertEqual(rv.status_code, 200)
+
+        self.assertIn(str.encode(qr_validator.message), rv.data)
+        self.assertIn(str.encode(nin_validator.message), rv.data)
+        self.assertIn(str.encode(passport_number_validator.message), rv.data)
+
+        # Valid form input
+        qr_code = '1{"token": "a_token", "nonce": "a_nonce"}'
+        nin = '190001021234'
+        rv = self.client.post(end_point, environ_base=self.auth_env, data={'qr_code': qr_code, 'nin': nin,
+                                                                           'expiry_date': str(self.todays_date),
+                                                                           'card_number': '12345678',
                                                                            'ocular_validation': True,
                                                                            'csrf_token': 'bogus token'})
 

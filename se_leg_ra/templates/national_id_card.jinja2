@@ -1,21 +1,21 @@
 {% extends "base_form.jinja2" %}
 {% from "_helpers.jinja2" import render_field, render_button, render_alert, render_navtabs %}
 
-{% block title %}{{ super() }} Pass{% endblock %}
+{% block title %}{{ super() }} Nationellt ID-kort{% endblock %}
 
 {% block form %}
     <div class="panel-body">
         <!-- Nav tabs -->
-        {{ render_navtabs('passport') }}
+        {{ render_navtabs('national_id_card') }}
 
         <!-- Tab panes -->
         <div class="tab-content">
-            <div role="tabpanel" class="tab-pane active" id="passport">
-                <form class="form-horizontal well" id="passport-form" action="{{ view_context.action_url }}" method="POST">
+            <div role="tabpanel" class="tab-pane active" id="id-card">
+                <form class="form-horizontal well" id="id-card-form" action="{{ view_context.action_url }}" method="POST">
                     {{ view_context.form.csrf_token }}
                     {{ render_field(view_context.form.qr_code, autofocus=True) }}
                     {{ render_field(view_context.form.nin) }}
-                    {{ render_field(view_context.form.passport_number) }}
+                    {{ render_field(view_context.form.card_number) }}
                     {{ render_field(view_context.form.expiry_date) }}
                     {{ render_field(view_context.form.ocular_validation) }}
                     {{ render_button() }}

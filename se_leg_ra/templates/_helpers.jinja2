@@ -35,8 +35,9 @@
 
 {% macro render_navtabs(active_tab) %}
     <ul class="nav nav-pills" role="tablist">
-        <li role="presentation" {% if active_tab == 'id_card' %}class="active"{% endif %}><a href="{{ url_for('se_leg_ra.id_card') }}" aria-controls="id-card" role="tab">ID-kort</a></li>
         <li role="presentation" {% if active_tab == 'drivers_license' %}class="active"{% endif %}><a href="{{ url_for('se_leg_ra.drivers_license') }}" aria-controls="drivers-license" role="tab">Körkort</a></li>
+        <li role="presentation" {% if active_tab == 'national_id_card' %}class="active"{% endif %}><a href="{{ url_for('se_leg_ra.national_id_card') }}" aria-controls="national-id-card" role="tab">Nationellt ID-kort</a></li>
+        <li role="presentation" {% if active_tab == 'id_card' %}class="active"{% endif %}><a href="{{ url_for('se_leg_ra.id_card') }}" aria-controls="id-card" role="tab">Annat ID-kort</a></li>
         <li role="presentation" {% if active_tab == 'passport' %}class="active"{% endif %}><a href="{{ url_for('se_leg_ra.passport') }}" aria-controls="passport" role="tab">Pass</a></li>
     </ul>
 {% endmacro %}

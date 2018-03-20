@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 
+import datetime
 from flask import current_app
 
 __author__ = 'lundberg'
@@ -41,7 +42,12 @@ def compute_credibility_score(credibility_data):
     :return: credibility score
     :rtype: int
     """
+    # Ocular validation
     if not credibility_data.get('ocular_validation', False):
+        return 0
+    # Expiry date
+    expiry_date = credibility_data.get('expiry_date')
+    if expiry_date.date() < datetime.date.today():
         return 0
     return 100
 
