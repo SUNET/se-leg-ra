@@ -1,0 +1,15 @@
+sudo: required
+language: python
+python:
+  - "3"
+before_install:
+  - docker pull docker.sunet.se/eduid/mongodb:latest
+services:
+  - docker
+# command to install dependencies
+install:
+  - pip install -U setuptools
+  - pip install --index-url https://pypi.sunet.se -r requirements/test-requirements.txt
+# command to run tests
+script:
+  - nosetests
