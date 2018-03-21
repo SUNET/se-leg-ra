@@ -2,7 +2,7 @@
 
 import requests
 from flask import Blueprint, current_app, render_template, url_for, request, redirect
-from se_leg_ra.forms import BaseForm, PassportForm, NationalIDCard
+from se_leg_ra.forms import DriversLicenseForm, IdCardForm, PassportForm, NationalIDCardForm
 from se_leg_ra.decorators import require_eppn
 from se_leg_ra.db import IdCardProofing, DriversLicenseProofing, PassportProofing, NationalIdCardProofing
 from se_leg_ra.utils import log_and_send_proofing, compute_credibility_score
@@ -28,7 +28,7 @@ def get_view_context(form, user):
 def index(user):
     current_app.logger.debug('GET index')
     # Set up the default form
-    view_context = get_view_context(BaseForm(), user)
+    view_context = get_view_context(DriversLicenseForm(), user)
     view_context['action_url'] = url_for('se_leg_ra.drivers_license')
     return render_template('drivers_license.jinja2', view_context=view_context)
 
@@ -36,7 +36,7 @@ def index(user):
 @se_leg_ra_views.route('/id-card', methods=['GET', 'POST'])
 @require_eppn
 def id_card(user):
-    form = BaseForm()
+    form = IdCardForm()
     view_context = get_view_context(form, user)
 
     if form.validate_on_submit():
@@ -44,6 +44,7 @@ def id_card(user):
         data = {
             'qr_code': form.qr_code.data,
             'nin': form.nin.data,
+            'card_number': form.card_number.data,
             'expiry_date': form.expiry_date.data,
             'ocular_validation': form.ocular_validation.data
         }
@@ -52,12 +53,9 @@ def id_card(user):
         credibility_score = compute_credibility_score(data)
         # Log the vetting attempt
         proofing_element = IdCardProofing(current_app.config['RA_APP_ID'], user['eppn'], data['nin'],
-                                          data['qr_code'], data['ocular_validation'], data['expiry_date'],
-                                          credibility_score, '2018v1')
-        if log_and_send_proofing(proofing_element, identity=data['nin']):
-            view_context['success_message'] = 'Verifiering mottagen'
-        else:
-            view_context['error_message'] = 'Ingen kontakt med verifieringstjänsten. Vänligen försök igen senare.'
+                                          data['card_number'], data['qr_code'], data['ocular_validation'],
+                                          data['expiry_date'], credibility_score, '2018v1')
+        view_context = log_and_send_proofing(proofing_element, identity=data['nin'], view_context=view_context)
 
     return render_template('id_card.jinja2', view_context=view_context)
 
@@ -65,13 +63,14 @@ def id_card(user):
 @se_leg_ra_views.route('/drivers-license', methods=['GET', 'POST'])
 @require_eppn
 def drivers_license(user):
-    form = BaseForm()
+    form = DriversLicenseForm()
     view_context = get_view_context(form, user)
 
     if form.validate_on_submit():
         data = {
             'qr_code': form.qr_code.data,
             'nin': form.nin.data,
+            'reference_number': form.reference_number.data,
             'expiry_date': form.expiry_date.data,
             'ocular_validation': form.ocular_validation.data
         }
@@ -80,12 +79,9 @@ def drivers_license(user):
         credibility_score = compute_credibility_score(data)
         # Log the vetting attempt
         proofing_element = DriversLicenseProofing(current_app.config['RA_APP_ID'], user['eppn'], data['nin'],
-                                                  data['qr_code'], data['ocular_validation'], data['expiry_date'],
-                                                  credibility_score, '2018v1')
-        if log_and_send_proofing(proofing_element, identity=data['nin']):
-            view_context['success_message'] = 'Verifiering mottagen'
-        else:
-            view_context['error_message'] = 'Ingen kontakt med verifieringstjänsten. Vänligen försök igen senare.'
+                                                  data['reference_number'], data['qr_code'], data['ocular_validation'],
+                                                  data['expiry_date'], credibility_score, '2018v1')
+        view_context = log_and_send_proofing(proofing_element, identity=data['nin'], view_context=view_context)
 
     return render_template('drivers_license.jinja2', view_context=view_context)
 
@@ -111,10 +107,7 @@ def passport(user):
         proofing_element = PassportProofing(current_app.config['RA_APP_ID'], user['eppn'], data['nin'],
                                             data['passport_number'], data['qr_code'], data['ocular_validation'],
                                             data['expiry_date'], credibility_score, '2018v1')
-        if log_and_send_proofing(proofing_element, identity=data['nin']):
-            view_context['success_message'] = 'Verifiering mottagen'
-        else:
-            view_context['error_message'] = 'Ingen kontakt med verifieringstjänsten. Vänligen försök igen senare.'
+        view_context = log_and_send_proofing(proofing_element, identity=data['nin'], view_context=view_context)
 
     return render_template('passport.jinja2', view_context=view_context)
 
@@ -122,7 +115,7 @@ def passport(user):
 @se_leg_ra_views.route('/national-id-card', methods=['GET', 'POST'])
 @require_eppn
 def national_id_card(user):
-    form = NationalIDCard()
+    form = NationalIDCardForm()
     view_context = get_view_context(form, user)
 
     if form.validate_on_submit():
@@ -140,11 +133,8 @@ def national_id_card(user):
         proofing_element = NationalIdCardProofing(current_app.config['RA_APP_ID'], user['eppn'], data['nin'],
                                                   data['card_number'], data['qr_code'],
                                                   data['ocular_validation'], data['expiry_date'],
-                                                  str(credibility_score), '2018v1')
-        if log_and_send_proofing(proofing_element, identity=data['nin']):
-            view_context['success_message'] = 'Verifiering mottagen'
-        else:
-            view_context['error_message'] = 'Ingen kontakt med verifieringstjänsten. Vänligen försök igen senare.'
+                                                  credibility_score, '2018v1')
+        view_context = log_and_send_proofing(proofing_element, identity=data['nin'], view_context=view_context)
 
     return render_template('national_id_card.jinja2', view_context=view_context)
 

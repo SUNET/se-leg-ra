@@ -3,7 +3,7 @@
         <div class="form-group form-group-lg">
             <div class="col-sm-offset-4 col-sm-12">
                 <label for="{{ field.name }}">
-                    <input id={{ field.name }} name={{ field.name }} value="y" type="checkbox"> {{ field.description }}
+                    <input id={{ field.name }} name={{ field.name }} value="y" type="checkbox" {% if field.default %}checked{% endif %}> {{ field.description }}
                 </label>
             </div>
         </div>

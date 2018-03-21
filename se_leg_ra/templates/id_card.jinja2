@@ -15,6 +15,7 @@
                     {{ view_context.form.csrf_token }}
                     {{ render_field(view_context.form.qr_code, autofocus=True) }}
                     {{ render_field(view_context.form.nin) }}
+                    {{ render_field(view_context.form.card_number) }}
                     {{ render_field(view_context.form.expiry_date) }}
                     {{ render_field(view_context.form.ocular_validation) }}
                     {{ render_button() }}

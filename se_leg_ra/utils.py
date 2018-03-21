@@ -54,17 +54,19 @@ def compute_credibility_score(credibility_data):
     return 100
 
 
-def log_and_send_proofing(proofing_element, identity):
+def log_and_send_proofing(proofing_element, identity, view_context):
     """
 
     :param proofing_element: Proofing data that should be logged
     :param identity: Proofed identity
+    :param view_context: Data for the view template
 
     :type: ProofingLogElement
     :type identity: six.string_types
+    :type view_context: dict
 
-    :return: True/False
-    :rtype: bool
+    :return: view_context
+    :rtype: dict
     """
     vetting_endpoint = current_app.config['VETTING_ENDPOINT']
     ra_app_secret = current_app.config['RA_APP_SECRET']
@@ -73,7 +75,7 @@ def log_and_send_proofing(proofing_element, identity):
         current_app.logger.debug('{}'.format(proofing_element))
         try:
             data = {
-                'identity': proofing_element.identity,
+                'identity': identity,
                 'qrcode': proofing_element.opaque,
                 'meta': {
                     'score': proofing_element.credibility_score,
@@ -85,9 +87,17 @@ def log_and_send_proofing(proofing_element, identity):
                               auth=HTTPBasicAuth(proofing_element.created_by, ra_app_secret))
             if r.status_code != 200:
                 current_app.logger.error('Bad request to vetting endpoint: {}'.format(r.content))
-                return False
+                # The nonce is invalid or expired
+                view_context['error_message'] = 'Ogiltig QR-kod. Be användaren påbörja en ny verifiering.'
+                return view_context
         except requests.RequestException as e:
             current_app.logger.error('Could not reach the vetting endpoint: {}'.format(e))
-            return False
-        return True
-    return False
+            # Could not contact the op
+            view_context['error_message'] = 'Ingen kontakt med verifieringstjänsten. Vänligen försök igen senare.'
+            return view_context
+        # Everything went well
+        view_context['success_message'] = 'Verifiering mottagen.'
+        return view_context
+    # Could not save the proofing
+    view_context['error_message'] = 'Tillfälligt tekniskt fel. Vänligen försök igen senare.'
+    return view_context

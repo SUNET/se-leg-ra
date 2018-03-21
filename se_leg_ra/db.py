@@ -128,54 +128,6 @@ class NinIdentityProofingElement(ProofingLogElement):
         return self._data['nin']
 
 
-class IdCardProofing(NinIdentityProofingElement):
-    """
-    {
-        'created_ts': datetime.utcnow()
-        'created_by': 'RA app id',
-        'verified_by': 'RA eppn',
-        'nin': national_identity_number,
-        'opaque': nonce_and_token_from_qr_code,
-        'ocular_validation': True/False,
-        'expiry_date': datetime.datetime.date(),
-        'credibility_score': 0-100,
-        'proofing_method': 'id_card',
-        'proofing_version': '2018v1',
-    }
-    """
-
-    def __init__(self, created_by, verified_by, nin, opaque, ocular_validation, expiry_date, credibility_score,
-                 proofing_version):
-        """
-        :param created_by: Application creating the log element
-        :param verified_by: RA users eppn
-        :param nin: National identity number
-        :param opaque: The json blob in string format the QR code contains
-        :param ocular_validation: Did everything look ok to the RA user
-        :param expiry_date: Identity document expiry date
-        :param credibility_score: Overall score of the proofing
-        :param proofing_version: Proofing method version number
-
-        :type created_by: six.string_types
-        :type verified_by: six.string_types
-        :type nin: six.string_types
-        :type opaque: six.string_types
-        :type ocular_validation: bool
-        :type expiry_date: datetime.datetime.date
-        :type credibility_score: int
-        :type proofing_version: six.string_types
-
-        :return: IdCardProofing object
-        :rtype: IdCardProofing
-        """
-        super(IdCardProofing, self).__init__(created_by, verified_by=verified_by, opaque=opaque,
-                                             ocular_validation=ocular_validation, expiry_date=expiry_date,
-                                             credibility_score=credibility_score, proofing_method='id_card',
-                                             proofing_version=proofing_version)
-        self._required_keys.extend(['nin'])
-        self._data['nin'] = nin
-
-
 class DriversLicenseProofing(NinIdentityProofingElement):
     """
     {
@@ -183,21 +135,23 @@ class DriversLicenseProofing(NinIdentityProofingElement):
         'created_by': 'RA app id',
         'verified_by': 'RA eppn',
         'nin': national_identity_number,
+        'reference_number': 'drivers license reference number',
         'opaque': nonce_and_token_from_qr_code,
         'ocular_validation': True/False,
-        'expiry_date': datetime.datetime.date(),
+        'expiry_date': datetime.datetime(),
         'credibility_score': 0-100,
         'proofing_method': 'drivers_license',
         'proofing_version': '2018v1',
     }
     """
 
-    def __init__(self, created_by, verified_by, nin, opaque, ocular_validation, expiry_date, credibility_score,
-                 proofing_version):
+    def __init__(self, created_by, verified_by, nin, reference_number, opaque, ocular_validation, expiry_date,
+                 credibility_score, proofing_version):
         """
         :param created_by: Application creating the log element
         :param verified_by: RA users eppn
         :param nin: National identity number
+        :param reference_number: Drivers license reference number
         :param opaque: The json blob in string format the QR code contains
         :param ocular_validation: Did everything look ok to the RA user
         :param expiry_date: Identity document expiry date
@@ -207,6 +161,7 @@ class DriversLicenseProofing(NinIdentityProofingElement):
         :type created_by: six.string_types
         :type verified_by: six.string_types
         :type nin: six.string_types
+        :type reference_number: six.string_types
         :type opaque: six.string_types
         :type ocular_validation: bool
         :type expiry_date: datetime.datetime.date
@@ -221,8 +176,9 @@ class DriversLicenseProofing(NinIdentityProofingElement):
                                                      credibility_score=credibility_score,
                                                      proofing_method='drivers_license',
                                                      proofing_version=proofing_version)
-        self._required_keys.extend(['nin'])
+        self._required_keys.extend(['nin', 'reference_number'])
         self._data['nin'] = nin
+        self._data['reference_number'] = reference_number
 
 
 class PassportProofing(NinIdentityProofingElement):
@@ -234,7 +190,7 @@ class PassportProofing(NinIdentityProofingElement):
         'nin': national_identity_number,
         'opaque': nonce_and_token_from_qr_code,
         'ocular_validation': True/False,
-        'expiry_date': datetime.datetime.date(),
+        'expiry_date': datetime.datetime(),
         'credibility_score': 0-100,
         'passport_number': passport_number,
         'proofing_method': 'passport',
@@ -277,7 +233,7 @@ class PassportProofing(NinIdentityProofingElement):
         self._data['passport_number'] = passport_number
 
 
-class NationalIdCardProofing(NinIdentityProofingElement):
+class IdCardProofing(NinIdentityProofingElement):
     """
     {
         'created_ts': datetime.utcnow()
@@ -286,10 +242,10 @@ class NationalIdCardProofing(NinIdentityProofingElement):
         'nin': national_identity_number,
         'opaque': nonce_and_token_from_qr_code,
         'ocular_validation': True/False,
-        'expiry_date': datetime.datetime.date(),
+        'expiry_date': datetime.datetime(),
         'credibility_score': 0-100,
-        'passport_number': passport_number,
-        'proofing_method': 'passport',
+        'card_number': card_number,
+        'proofing_method': 'id_card',
         'proofing_version': '2018v1',
     }
     """
@@ -320,11 +276,59 @@ class NationalIdCardProofing(NinIdentityProofingElement):
         :return: PassportProofing object
         :rtype: PassportProofing
         """
-        super(NationalIdCardProofing, self).__init__(created_by, verified_by=verified_by, opaque=opaque,
-                                                     ocular_validation=ocular_validation, expiry_date=expiry_date,
-                                                     credibility_score=credibility_score,
-                                                     proofing_method='national_id_card',
-                                                     proofing_version=proofing_version)
+        super(IdCardProofing, self).__init__(created_by, verified_by=verified_by, opaque=opaque,
+                                             ocular_validation=ocular_validation, expiry_date=expiry_date,
+                                             credibility_score=credibility_score, proofing_method='id_card',
+                                             proofing_version=proofing_version)
         self._required_keys.extend(['nin', 'card_number'])
         self._data['nin'] = nin
         self._data['card_number'] = card_number
+
+
+class NationalIdCardProofing(IdCardProofing):
+    """
+    {
+        'created_ts': datetime.utcnow()
+        'created_by': 'RA app id',
+        'verified_by': 'RA eppn',
+        'nin': national_identity_number,
+        'opaque': nonce_and_token_from_qr_code,
+        'ocular_validation': True/False,
+        'expiry_date': datetime.datetime(),
+        'credibility_score': 0-100,
+        'card_number': card_number,
+        'proofing_method': 'passport',
+        'proofing_version': '2018v1',
+    }
+    """
+
+    def __init__(self, created_by, verified_by, nin, card_number, opaque, ocular_validation, expiry_date,
+                 credibility_score, proofing_version):
+        """
+        :param created_by: Application creating the log element
+        :param verified_by: RA users eppn
+        :param nin: National identity number
+        :param card_number: Id card number
+        :param opaque: The json blob in string format the QR code contains
+        :param ocular_validation: Did everything look ok to the RA user
+        :param expiry_date: Identity document expiry date
+        :param credibility_score: Overall score of the proofing
+        :param proofing_version: Proofing method version number
+
+        :type created_by: six.string_types
+        :type verified_by: six.string_types
+        :type nin: six.string_types
+        :type card_number: six.string_types
+        :type opaque: six.string_types
+        :type ocular_validation: bool
+        :type expiry_date: datetime.datetime.date
+        :type credibility_score: int
+        :type proofing_version: six.string_types
+
+        :return: NationalIdCardProofing object
+        :rtype: NationalIdCardProofing
+        """
+        super(NationalIdCardProofing, self).__init__(created_by, verified_by, nin, card_number, opaque,
+                                                     ocular_validation, expiry_date, credibility_score,
+                                                     proofing_version)
+        self._data['proofing_method'] = 'national_id_card'
