@@ -26,10 +26,16 @@ echo "PYTHONPATH=${PYTHONPATH}"
 # version of something is actually running.
 /ra/env/bin/pip freeze
 
+# Copy static files for data volume use
+mkdir -p /ra/static
+cp -r /ra/src/se_leg_ra/static/* /ra/static/.
+
 extra_args=""
 if [ -d "/opt/se-leg/se-leg-ra/" ]; then
     # developer mode, restart on code changes
     extra_args="--reload"
+    # Copy static files for data volume use
+    cp -r /opt/se-leg/se-leg-ra/se_leg_ra/static/* /ra/static/.
 fi
 
 echo ""

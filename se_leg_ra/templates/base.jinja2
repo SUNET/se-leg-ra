@@ -9,6 +9,8 @@
 
     <!-- Latest compiled and minified CSS -->
     <link rel="stylesheet" href="{{ static_url_for('css/bootstrap.min.css') }}">
+    {% block extra_css %}
+    {% endblock %}
 
     <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
     <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
@@ -42,5 +44,7 @@
 <script src="{{ static_url_for('js/jquery.min.js') }}"></script>
 <!-- Minified Bootstrap JavaScript -->
 <script src="{{ static_url_for('js/bootstrap.min.js') }}"></script>
+{% block extra_js %}
+{% endblock %}
 </body>
 </html>

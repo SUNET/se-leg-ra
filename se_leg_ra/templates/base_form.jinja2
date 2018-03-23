@@ -3,6 +3,10 @@
 
 {% block title %}{{ super() }} - Verifiera{% endblock %}
 
+{% block extra_css %}
+    <link rel="stylesheet" href="{{ static_url_for('css/bootstrap-datepicker3.min.css') }}">
+{% endblock %}
+
 {% block content %}
     <div class="panel panel-default">
         <div class="panel-heading">
@@ -21,4 +25,9 @@
             </div>
         {% endif %}
     </div>
+{% endblock %}
+
+{% block extra_js %}
+    <script src="{{ static_url_for('js/bootstrap-datepicker.min.js') }}"></script>
+    <script src="{{ static_url_for('js/bootstrap-datepicker.sv.min.js') }}"></script>
 {% endblock %}

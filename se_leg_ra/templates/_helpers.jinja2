@@ -7,6 +7,18 @@
                 </label>
             </div>
         </div>
+    {% elif field.type == "SEDateTimeField" %}
+        <div class="form-group form-group-lg">
+            <label class="col-sm-4 control-label" for="{{ field.name }}">{{ field.label }}</label>
+            <div class="col-sm-8">
+                <div class="input-group date" data-provide="datepicker" data-date-format="yyyy-mm-dd" data-date-language="sv" data-date-autoclose="true" data-date-title="{{ field.label.text }}">
+                    <input id={{ field.name }} name={{ field.name }} type="text" class="form-control datepicker">
+                    <div class="input-group-addon">
+                        <span id="calendar-button" class="glyphicon glyphicon-calendar"></span>
+                    </div>
+                </div>
+            </div>
+        </div>
     {% else %}
         <div class="form-group form-group-lg">
             <label class="col-sm-4 control-label" for="{{ field.name }}">{{ field.label }}</label>
