@@ -36,24 +36,6 @@ def urlappend(base, path):
     return '{!s}{!s}'.format(base, path)
 
 
-def compute_credibility_score(credibility_data):
-    """
-    :param credibility_data: Collection of credibility data
-    :type credibility_data: dict
-
-    :return: credibility score
-    :rtype: int
-    """
-    # Ocular validation
-    if not credibility_data.get('ocular_validation', False):
-        return 0
-    # Expiry date
-    expiry_date = credibility_data.get('expiry_date')
-    if expiry_date.date() < datetime.date.today():
-        return 0
-    return 100
-
-
 def log_and_send_proofing(proofing_element, identity, view_context):
     """
 
@@ -78,7 +60,9 @@ def log_and_send_proofing(proofing_element, identity, view_context):
                 'identity': identity,
                 'qrcode': proofing_element.opaque,
                 'meta': {
-                    'score': proofing_element.credibility_score,
+                    'ocular_validation': proofing_element.ocular_validation,
+                    'expiry_date': proofing_element.expiry_date.timestamp(),
+                    'document_identifier': proofing_element.document_identifier,
                     'proofing_method': proofing_element.proofing_method,
                     'proofing_version': proofing_element.proofing_version
                 }

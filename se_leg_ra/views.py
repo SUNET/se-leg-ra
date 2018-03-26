@@ -1,11 +1,10 @@
 # -*- coding: utf-8 -*-
 
-import requests
 from flask import Blueprint, current_app, render_template, url_for, request, redirect
 from se_leg_ra.forms import DriversLicenseForm, IdCardForm, PassportForm, NationalIDCardForm
 from se_leg_ra.decorators import require_eppn
 from se_leg_ra.db import IdCardProofing, DriversLicenseProofing, PassportProofing, NationalIdCardProofing
-from se_leg_ra.utils import log_and_send_proofing, compute_credibility_score
+from se_leg_ra.utils import log_and_send_proofing
 
 __author__ = 'lundberg'
 
@@ -49,12 +48,10 @@ def id_card(user):
             'ocular_validation': form.ocular_validation.data
         }
         current_app.logger.debug('Form data: {}'.format(data))
-        # Compute credibility score
-        credibility_score = compute_credibility_score(data)
         # Log the vetting attempt
         proofing_element = IdCardProofing(current_app.config['RA_APP_ID'], user['eppn'], data['nin'],
                                           data['card_number'], data['qr_code'], data['ocular_validation'],
-                                          data['expiry_date'], credibility_score, '2018v1')
+                                          data['expiry_date'], '2018v1')
         view_context = log_and_send_proofing(proofing_element, identity=data['nin'], view_context=view_context)
 
     return render_template('id_card.jinja2', view_context=view_context)
@@ -75,12 +72,10 @@ def drivers_license(user):
             'ocular_validation': form.ocular_validation.data
         }
         current_app.logger.debug('Form data: {}'.format(data))
-        # Compute credibility score
-        credibility_score = compute_credibility_score(data)
         # Log the vetting attempt
         proofing_element = DriversLicenseProofing(current_app.config['RA_APP_ID'], user['eppn'], data['nin'],
                                                   data['reference_number'], data['qr_code'], data['ocular_validation'],
-                                                  data['expiry_date'], credibility_score, '2018v1')
+                                                  data['expiry_date'], '2018v1')
         view_context = log_and_send_proofing(proofing_element, identity=data['nin'], view_context=view_context)
 
     return render_template('drivers_license.jinja2', view_context=view_context)
@@ -101,12 +96,10 @@ def passport(user):
             'ocular_validation': form.ocular_validation.data
         }
         current_app.logger.debug('Form data: {}'.format(data))
-        # Compute credibility score
-        credibility_score = compute_credibility_score(data)
         # Log the vetting attempt
         proofing_element = PassportProofing(current_app.config['RA_APP_ID'], user['eppn'], data['nin'],
                                             data['passport_number'], data['qr_code'], data['ocular_validation'],
-                                            data['expiry_date'], credibility_score, '2018v1')
+                                            data['expiry_date'], '2018v1')
         view_context = log_and_send_proofing(proofing_element, identity=data['nin'], view_context=view_context)
 
     return render_template('passport.jinja2', view_context=view_context)
@@ -127,13 +120,10 @@ def national_id_card(user):
             'ocular_validation': form.ocular_validation.data
         }
         current_app.logger.debug('Form data: {}'.format(data))
-        # Compute credibility score
-        credibility_score = compute_credibility_score(data)
         # Log the vetting attempt
         proofing_element = NationalIdCardProofing(current_app.config['RA_APP_ID'], user['eppn'], data['nin'],
                                                   data['card_number'], data['qr_code'],
-                                                  data['ocular_validation'], data['expiry_date'],
-                                                  credibility_score, '2018v1')
+                                                  data['ocular_validation'], data['expiry_date'], '2018v1')
         view_context = log_and_send_proofing(proofing_element, identity=data['nin'], view_context=view_context)
 
     return render_template('national_id_card.jinja2', view_context=view_context)
