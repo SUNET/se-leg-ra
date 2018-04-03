@@ -72,12 +72,12 @@ def init_se_leg_ra_app(name=None, config=None):
     app.register_blueprint(se_leg_ra_views)
 
     # Init db
-    app.user_db = UserDB(db_uri=app.config['MONGO_URI'])
+    app.user_db = UserDB(db_uri=app.config['DB_URI'])
     app.logger.info('user_db initialized')
     app.user_db.setup_indexes({'index-eppn': {'key': [('eppn', 1)], 'unique': True, 'background': True}, })
     app.logger.info('user_db indexing started')
 
-    app.proofing_log = ProofingLog(db_uri=app.config['MONGO_URI'])
+    app.proofing_log = ProofingLog(db_uri=app.config['DB_URI'])
     app.logger.info('proofing_log initialized')
 
     app.logger.info('{!s} initialized'.format(name))

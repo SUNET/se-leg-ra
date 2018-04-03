@@ -13,7 +13,7 @@ http://flask.pocoo.org/docs/0.10/config/#builtin-configuration-values
 DEBUG = False
 
 # Database URIs
-MONGO_URI = ''
+DB_URI = ''
 REDIS_HOST = ''
 REDIS_PORT = 6379
 REDIS_DB = 0
