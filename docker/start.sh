@@ -44,10 +44,10 @@ echo $SE_LEG_RA_SETTINGS
 export SE_LEG_RA_SETTINGS=${SE_LEG_RA_SETTINGS-${cfg_file}}
 echo $SE_LEG_RA_SETTINGS
 
-exec start-stop-daemon --start -c se-leg:se-leg --exec \
+exec start-stop-daemon --start -c seleg:seleg --exec \
      /ra/env/bin/gunicorn \
      --pidfile "/var/run/${app_name}.pid" \
-     --user=se-leg --group=se-leg -- \
+     --user=seleg --group=seleg -- \
      --bind 0.0.0.0:5000 \
      --chdir "/tmp" \
      --workers ${workers} --worker-class ${worker_class} \

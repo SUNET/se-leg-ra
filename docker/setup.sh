@@ -3,7 +3,7 @@
 set -e
 set -x
 
-adduser --system --group se-leg
+adduser --system --group seleg
 
 virtualenv -p python3 /ra/env
 cd /ra/src
