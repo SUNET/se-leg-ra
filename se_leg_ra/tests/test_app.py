@@ -4,7 +4,6 @@ from __future__ import absolute_import
 
 from unittest import TestCase
 from mock import patch
-from flask import request
 from datetime import datetime
 from eduid_userdb.testing import MongoTemporaryInstance
 from se_leg_ra.app import init_se_leg_ra_app
@@ -38,6 +37,8 @@ class SeLegRATests(TestCase):
         }
 
         self.test_user_eppn = 'test-user@localhost'
+        self.test_nin = '190102031234'  # Needs to pass the Luhn validation
+        self.test_qr_code = '1{"token": "a_token", "nonce": "a_nonce"}'
 
         self.app = init_se_leg_ra_app('testing', config)
 
@@ -90,9 +91,8 @@ class SeLegRATests(TestCase):
         self.assertIn(str.encode(nin_validator.message), rv.data)
 
         # Valid form input
-        qr_code = '1{"token": "a_token", "nonce": "a_nonce"}'
-        nin = '190001021234'
-        rv = self.client.post(end_point, environ_base=self.auth_env, data={'qr_code': qr_code, 'nin': nin,
+        rv = self.client.post(end_point, environ_base=self.auth_env, data={'qr_code': self.test_qr_code,
+                                                                           'nin': self.test_nin,
                                                                            'expiry_date': str(self.todays_date),
                                                                            'card_number': '12345678',
                                                                            'ocular_validation': True,
@@ -124,9 +124,8 @@ class SeLegRATests(TestCase):
         self.assertIn(str.encode(nine_digits_validator.message), rv.data)
 
         # Valid form input
-        qr_code = '1{"token": "a_token", "nonce": "a_nonce"}'
-        nin = '190001021234'
-        rv = self.client.post(end_point, environ_base=self.auth_env, data={'qr_code': qr_code, 'nin': nin,
+        rv = self.client.post(end_point, environ_base=self.auth_env, data={'qr_code': self.test_qr_code,
+                                                                           'nin': self.test_nin,
                                                                            'reference_number': '123456789',
                                                                            'expiry_date': str(self.todays_date),
                                                                            'ocular_validation': True,
@@ -158,9 +157,8 @@ class SeLegRATests(TestCase):
         self.assertIn(str.encode(eight_digits_validator.message), rv.data)
 
         # Valid form input
-        qr_code = '1{"token": "a_token", "nonce": "a_nonce"}'
-        nin = '190001021234'
-        rv = self.client.post(end_point, environ_base=self.auth_env, data={'qr_code': qr_code, 'nin': nin,
+        rv = self.client.post(end_point, environ_base=self.auth_env, data={'qr_code': self.test_qr_code,
+                                                                           'nin': self.test_nin,
                                                                            'expiry_date': str(self.todays_date),
                                                                            'passport_number': '12345678',
                                                                            'ocular_validation': True,
@@ -194,9 +192,8 @@ class SeLegRATests(TestCase):
         self.assertIn(str.encode(eight_digits_validator.message), rv.data)
 
         # Valid form input
-        qr_code = '1{"token": "a_token", "nonce": "a_nonce"}'
-        nin = '190001021234'
-        rv = self.client.post(end_point, environ_base=self.auth_env, data={'qr_code': qr_code, 'nin': nin,
+        rv = self.client.post(end_point, environ_base=self.auth_env, data={'qr_code': self.test_qr_code,
+                                                                           'nin': self.test_nin,
                                                                            'expiry_date': str(self.todays_date),
                                                                            'card_number': '12345678',
                                                                            'ocular_validation': True,
