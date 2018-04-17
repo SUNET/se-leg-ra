@@ -74,7 +74,7 @@ class LuhnValidator(object):
         else:
             message = self.message
 
-        n = int(field.raw_data[0][2:])
+        n = int(field.raw_data[0][2:])  # Remove century from nin for Luhn operation
         # https://rosettacode.org/wiki/Luhn_test_of_credit_card_numbers#Python
         r = [int(ch) for ch in str(n)][::-1]
         if not (sum(r[0::2]) + sum(sum(divmod(d * 2, 10)) for d in r[1::2])) % 10 == 0:
@@ -110,7 +110,8 @@ nine_digits_validator = NDigitValidator(9, message="Ange ett giltigt nummer i fo
 class BaseForm(FlaskForm):
     qr_code = OpaqueDataField('QR-kod', description='Klicka här och läs in QR-koden',
                               validators=[input_validator, qr_validator])
-    nin = StringField('Personnummer', description='ÅÅÅÅMMDDNNNN', validators=[input_validator, nin_validator])
+    nin = StringField('Personnummer', description='ÅÅÅÅMMDDNNNN', validators=[input_validator, nin_validator,
+                                                                              luhn_validator])
     expiry_date = SEDateTimeField('Utgångsdatum', description="YYYY-MM-DD", format='%Y-%m-%d',
                                   validators=[input_validator])
     ocular_validation = BooleanField(description='Ovanstående uppgifter är rätta och riktiga', default="checked")
