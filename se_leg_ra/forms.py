@@ -5,9 +5,23 @@ import json
 from flask import current_app
 from flask_wtf import FlaskForm
 from wtforms import StringField, TextAreaField, BooleanField, DateTimeField
+from wtforms.widgets import Input
 from wtforms.validators import InputRequired, Regexp, ValidationError
 
 __author__ = 'lundberg'
+
+
+class PlaceholderInput(Input):
+    input_type = None
+
+    def __init__(self, input_type=None, **kwargs):
+        self.params = kwargs
+        super(PlaceholderInput, self).__init__(input_type=input_type)
+
+    def __call__(self, field, **kwargs):
+        for param, value in self.params.items():
+            kwargs.setdefault(param, value)
+        return super(PlaceholderInput, self).__call__(field, **kwargs)
 
 
 class OpaqueDataField(TextAreaField):
@@ -108,30 +122,30 @@ nine_digits_validator = NDigitValidator(9, message="Ange ett giltigt nummer i fo
 
 
 class BaseForm(FlaskForm):
-    qr_code = OpaqueDataField('QR-kod', description='Klicka här och läs in QR-koden',
-                              validators=[input_validator, qr_validator])
-    nin = StringField('Personnummer', description='ÅÅÅÅMMDDNNNN', validators=[input_validator, nin_validator,
-                                                                              luhn_validator])
-    expiry_date = SEDateTimeField('Utgångsdatum', description="YYYY-MM-DD", format='%Y-%m-%d',
-                                  validators=[input_validator])
+    qr_code = OpaqueDataField('QR-kod', validators=[input_validator, qr_validator],
+                              widget=PlaceholderInput(placeholder='Klicka här och läs in QR-koden'))
+    nin = StringField('Personnummer', validators=[input_validator, nin_validator, luhn_validator],
+                      widget=PlaceholderInput(placeholder='ÅÅÅÅMMDDNNNN'))
+    expiry_date = SEDateTimeField('Utgångsdatum', format='%Y-%m-%d', validators=[input_validator],
+                                  widget=PlaceholderInput(placeholder='YYYY-MM-DD'))
     ocular_validation = BooleanField(description='Ovanstående uppgifter är rätta och riktiga', default="checked")
 
 
 class DriversLicenseForm(BaseForm):
-    reference_number = StringField('Referensnummer', description='NNNNNNNNN',
-                                   validators=[nine_digits_validator])
+    reference_number = StringField('Referensnummer', description='Nio siffror', validators=[nine_digits_validator],
+                                   widget=PlaceholderInput(placeholder='NNNNNNNNN'))
 
 
 class IdCardForm(BaseForm):
-    card_number = StringField('Kortnummer', description='Kortnummer',
-                              validators=[input_validator])
+    card_number = StringField('Kortnummer', validators=[input_validator],
+                              widget=PlaceholderInput(placeholder='Kortnummer'))
 
 
 class PassportForm(BaseForm):
-    passport_number = StringField('Passnummer', description='NNNNNNNN',
-                                  validators=[eight_digits_validator])
+    passport_number = StringField('Passnummer', description='Åtta siffror', validators=[eight_digits_validator],
+                                  widget=PlaceholderInput(placeholder='NNNNNNNN'))
 
 
 class NationalIDCardForm(BaseForm):
-    card_number = StringField('Kortnummer', description='NNNNNNNN',
-                              validators=[eight_digits_validator])
+    card_number = StringField('Kortnummer', description='Åtta siffror', validators=[eight_digits_validator],
+                              widget=PlaceholderInput(placeholder='NNNNNNNN'))

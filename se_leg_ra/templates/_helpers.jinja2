@@ -23,7 +23,10 @@
         <div class="form-group form-group-lg">
             <label class="col-sm-4 control-label" for="{{ field.name }}">{{ field.label }}</label>
             <div class="col-sm-8">
-                {{ field(class='form-control', id=field.name, placeholder=field.description, autofocus=autofocus) }}
+                {{ field(class='form-control', id=field.name, autofocus=autofocus) }}
+                {% if field.description %}
+                    <span class="help-block">{{ field.description }}</span>
+                {% endif %}
                 {% if field.errors %}
                     {% for error in field.errors %}
                         <p class="text-danger">{{ error }}</p>
