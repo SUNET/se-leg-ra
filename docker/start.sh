@@ -31,7 +31,7 @@ mkdir -p /ra/static
 cp -r /ra/src/se_leg_ra/static/* /ra/static/.
 
 extra_args=""
-if [ -d "/opt/se-leg/se-leg-ra/" ]; then
+if [ -d "/opt/se-leg/se-leg-ra/se_leg_ra/" ]; then
     # developer mode, restart on code changes
     extra_args="--reload"
     # Copy static files for data volume use
