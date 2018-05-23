@@ -17,6 +17,11 @@
                         <span id="calendar-button" class="glyphicon glyphicon-calendar"></span>
                     </div>
                 </div>
+                {% if field.errors %}
+                    {% for error in field.errors %}
+                        <p class="text-danger">{{ error }}</p>
+                    {% endfor %}
+                {% endif %}
             </div>
         </div>
     {% else %}

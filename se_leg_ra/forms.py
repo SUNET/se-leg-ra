@@ -115,7 +115,7 @@ class NinValidator(Regexp):
 
 input_validator = InputRequired(message="Det här fältet är obligatoriskt")
 qr_validator = OpaqueDataRequired(message="Inläsning av QR-koden misslyckades")
-nin_validator = NinValidator(message="Ange ett giltigt personnummer i formatet ÅÅMMDDNNNN")
+nin_validator = NinValidator(message="Ange ett giltigt personnummer i formatet ÅÅÅÅMMDDNNNN")
 luhn_validator = LuhnValidator(message='Personnummret kunde inte valideras. Saknas någon siffra?')
 eight_digits_validator = NDigitValidator(8, message="Ange ett giltigt nummer i formatet NNNNNNNN (åtta siffror)")
 nine_digits_validator = NDigitValidator(9, message="Ange ett giltigt nummer i formatet NNNNNNNNN (nio siffror)")
@@ -126,8 +126,7 @@ class BaseForm(FlaskForm):
                               widget=PlaceholderInput(placeholder='Klicka här och läs in QR-koden'))
     nin = StringField('Personnummer', validators=[input_validator, nin_validator, luhn_validator],
                       widget=PlaceholderInput(placeholder='ÅÅÅÅMMDDNNNN'))
-    expiry_date = SEDateTimeField('Utgångsdatum', format='%Y-%m-%d', validators=[input_validator],
-                                  widget=PlaceholderInput(placeholder='YYYY-MM-DD'))
+    expiry_date = SEDateTimeField('Utgångsdatum', format='%Y-%m-%d', widget=PlaceholderInput(placeholder='YYYY-MM-DD'))
     ocular_validation = BooleanField(description='Ovanstående uppgifter är rätta och riktiga', default="checked")
 
 
