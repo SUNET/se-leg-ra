@@ -15,7 +15,8 @@ RUN apt-get -y install \
     net-tools \
     netcat \
     telnet \
-    traceroute
+    traceroute \
+    curl
 RUN apt-get -y install \
     python-virtualenv \
     git-core \
@@ -37,5 +38,7 @@ ADD . /ra/src
 ADD docker/start.sh /start.sh
 ADD docker/setup.sh /setup.sh
 RUN /setup.sh
+
+HEALTHCHECK --interval=10s CMD curl http://localhost:5000/status/healthy | grep -q STATUS_OK
 
 CMD ["bash", "/start.sh"]
