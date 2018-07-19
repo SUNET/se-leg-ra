@@ -2,6 +2,7 @@ disabled: true
 
 extra_jobs:
   - name: se-leg-ra-docker
+    disabled: false
     builders:
       - docker
     docker_name: se-leg/ra
