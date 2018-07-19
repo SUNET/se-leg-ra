@@ -8,6 +8,7 @@ from werkzeug.contrib.fixers import ProxyFix
 from flask_wtf.csrf import CSRFProtect
 from se_leg_ra.db import UserDB, ProofingLog
 from se_leg_ra.utils import urlappend
+from se_leg_ra.middleware import LocalhostMiddleware
 
 
 __author__ = 'lundberg'
@@ -66,10 +67,13 @@ def init_se_leg_ra_app(name=None, config=None):
     app.url_map.strict_slashes = False
     CSRFProtect(app)
     app = init_template_functions(app)
+    app.wsgi_app = LocalhostMiddleware(app.wsgi_app, server_name=app.config['SERVER_NAME'])
 
     # Register views
-    from se_leg_ra.views import se_leg_ra_views
+    from se_leg_ra.views.ra import se_leg_ra_views
     app.register_blueprint(se_leg_ra_views)
+    from se_leg_ra.views.status import status_views
+    app.register_blueprint(status_views)
 
     # Init db
     app.user_db = UserDB(db_uri=app.config['DB_URI'])
