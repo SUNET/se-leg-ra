@@ -12,7 +12,7 @@ def require_eppn(f):
         eppn = request.environ.pop('HTTP_EPPN', None)
 
         # Check if the assertion contains an AL2 assurance or if it
-        # is coming from and IdP that is in the exceptions list
+        # is coming from an IdP that is in the exceptions list
         if not is_al2():
             current_app.logger.warning('{} not AL2'.format(eppn))
             abort(403)
