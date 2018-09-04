@@ -33,7 +33,10 @@ class SeLegRATests(TestCase):
             'DB_URI': self.mongo_instance.get_uri(),
             'RA_APP_ID': 'test_ra_app',
             'VETTING_ENDPOINT': 'http://op/vetting-result',
-            'WTF_CSRF_ENABLED': False
+            'WTF_CSRF_ENABLED': False,
+            'AL2_IDP_EXCEPTIONS': [
+                'https://idp.example.com/metadata'
+            ]
         }
 
         self.test_user_eppn = 'test-user@localhost'
@@ -47,7 +50,10 @@ class SeLegRATests(TestCase):
             self.app.user_db._coll.insert_one({'eppn': self.test_user_eppn})
 
         self.client = self.app.test_client()
-        self.auth_env = {'HTTP_EPPN': self.test_user_eppn}
+        self.auth_env = {
+            'HTTP_EPPN': self.test_user_eppn,
+            'HTTP_ASSURANCE': 'http://www.swamid.se/policy/assurance/al2',
+        }
         self.todays_date = datetime.date(datetime.now())
         super(SeLegRATests, self).setUp()
 
@@ -69,6 +75,36 @@ class SeLegRATests(TestCase):
     def test_index_logged_in(self):
         rv = self.client.get('/', environ_base=self.auth_env)
         self.assertEqual(rv.status_code, 200)
+
+    def test_index_log_in_no_assurance(self):
+        auth_env = {
+            'HTTP_EPPN': self.test_user_eppn,
+        }
+        rv = self.client.get('/', environ_base=auth_env)
+        self.assertEqual(rv.status_code, 403)
+
+    def test_index_log_in_excepted_idp(self):
+        auth_env = {
+            'HTTP_EPPN': self.test_user_eppn,
+            'HTTP_SHIB_IDENTITY_PROVIDER': 'https://idp.example.com/metadata',
+        }
+        rv = self.client.get('/', environ_base=auth_env)
+        self.assertEqual(rv.status_code, 200)
+
+    def test_index_log_in_missing_entity_id(self):
+        auth_env = {
+            'HTTP_EPPN': self.test_user_eppn,
+        }
+        rv = self.client.get('/', environ_base=auth_env)
+        self.assertEqual(rv.status_code, 403)
+
+    def test_index_log_in_al1(self):
+        auth_env = {
+            'HTTP_EPPN': self.test_user_eppn,
+            'HTTP_ASSURANCE': 'http://www.swamid.se/policy/assurance/al1',
+        }
+        rv = self.client.get('/', environ_base=auth_env)
+        self.assertEqual(rv.status_code, 403)
 
     @patch('requests.post')
     def test_id_card(self, mock_requests_post):
