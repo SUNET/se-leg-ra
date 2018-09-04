@@ -10,10 +10,17 @@ def require_eppn(f):
     @wraps(f)
     def require_eppn_decorator(*args, **kwargs):
         eppn = request.environ.pop('HTTP_EPPN', None)
+
+        # Check if the assertion contains an AL2 assurance or if it
+        # is coming from and IdP that is in the exceptions list
+        if not is_al2():
+            current_app.logger.warning('{} not AL2'.format(eppn))
+            abort(403)
+
         # If the logged in user is whitelisted then we
         # pass on the request to the decorated view
         # together with a dict of user attributes.
-        if eppn and current_app.user_db.is_whitelisted(eppn) and is_al2():
+        if eppn and current_app.user_db.is_whitelisted(eppn):
             user = {
                 'eppn': eppn,
                 'given_name': request.environ.pop('HTTP_GIVENNAME', None),
@@ -42,4 +49,5 @@ def is_al2():
     assurance = request.environ.pop('HTTP_ASSURANCE', None)
     if assurance == 'http://www.swamid.se/policy/assurance/al2':
         return True
+    current_app.logger.warning('Assertion from {} asserted {} assurance'.format(entity_id, assurance))
     return False
