@@ -13,7 +13,7 @@ def require_eppn(f):
         # If the logged in user is whitelisted then we
         # pass on the request to the decorated view
         # together with a dict of user attributes.
-        if eppn and current_app.user_db.is_whitelisted(eppn):
+        if eppn and current_app.user_db.is_whitelisted(eppn) and is_al2():
             user = {
                 'eppn': eppn,
                 'given_name': request.environ.pop('HTTP_GIVENNAME', None),
@@ -27,3 +27,19 @@ def require_eppn(f):
         current_app.logger.warning('{} not in whitelist'.format(eppn))
         abort(403)
     return require_eppn_decorator
+
+
+def is_al2():
+    """
+    Require AL2 assurance by default but with a list of exceptions.
+
+    :return: True/False
+    :rtype: Boolean
+    """
+    entity_id = request.environ.pop('HTTP_SHIB_IDENTITY_PROVIDER', None)
+    if entity_id in current_app.config['AL2_IDP_EXCEPTIONS']:
+        return True
+    assurance = request.environ.pop('HTTP_ASSURANCE', None)
+    if assurance == 'http://www.swamid.se/policy/assurance/al2':
+        return True
+    return False
