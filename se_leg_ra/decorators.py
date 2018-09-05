@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from functools import wraps
+from six import string_types
 from flask import request, current_app, abort
 
 __author__ = 'lundberg'
@@ -43,11 +44,22 @@ def is_al2():
     :return: True/False
     :rtype: Boolean
     """
-    entity_id = request.environ.pop('HTTP_SHIB_IDENTITY_PROVIDER', None)
+    entity_id = request.environ.get('HTTP_SHIB_IDENTITY_PROVIDER', None)
     if entity_id in current_app.config['AL2_IDP_EXCEPTIONS']:
+        current_app.logger.warning('Not checking assurance from {}.'.format(entity_id))
         return True
     assurance = request.environ.pop('HTTP_ASSURANCE', None)
-    if assurance == 'http://www.swamid.se/policy/assurance/al2':
+    if assurance:
+        # Allow for both a single string and a list of assurances
+        if isinstance(assurance, string_types):
+            assurance = [assurance]
+        # Check allowed assurances against supplied ones
+        for item in current_app.config['AL2_ASSURANCES']:
+            if item in assurance:
+                current_app.logger.info('Assertion from {} asserted {} assurance'.format(entity_id, assurance))
+                return True
+    current_app.logger.warning('Not accepted assurance ({}) from {}'.format(assurance, entity_id))
+    return False
         return True
     current_app.logger.warning('Assertion from {} asserted {} assurance'.format(entity_id, assurance))
     return False
