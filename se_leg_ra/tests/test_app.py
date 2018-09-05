@@ -34,6 +34,10 @@ class SeLegRATests(TestCase):
             'RA_APP_ID': 'test_ra_app',
             'VETTING_ENDPOINT': 'http://op/vetting-result',
             'WTF_CSRF_ENABLED': False,
+            'AL2_ASSURANCES': [
+               'http://www.swamid.se/policy/assurance/al2',
+               'http://www.swamid.se/policy/authentication/swamid-al2-mfa-hi'
+            ],
             'AL2_IDP_EXCEPTIONS': [
                 'https://idp.example.com/metadata'
             ]
@@ -102,6 +106,28 @@ class SeLegRATests(TestCase):
         auth_env = {
             'HTTP_EPPN': self.test_user_eppn,
             'HTTP_ASSURANCE': 'http://www.swamid.se/policy/assurance/al1',
+        }
+        rv = self.client.get('/', environ_base=auth_env)
+        self.assertEqual(rv.status_code, 403)
+
+    def test_index_log_in_assuarance_list(self):
+        auth_env = {
+            'HTTP_EPPN': self.test_user_eppn,
+            'HTTP_ASSURANCE': [
+                'http://www.swamid.se/policy/assurance/al1',
+                'http://www.swamid.se/policy/assurance/al2'
+            ]
+        }
+        rv = self.client.get('/', environ_base=auth_env)
+        self.assertEqual(rv.status_code, 200)
+
+    def test_index_log_in_assuarance_list_al1(self):
+        auth_env = {
+            'HTTP_EPPN': self.test_user_eppn,
+            'HTTP_ASSURANCE': [
+                'http://www.swamid.se/policy/assurance/al1',
+                'some other assurance'
+            ]
         }
         rv = self.client.get('/', environ_base=auth_env)
         self.assertEqual(rv.status_code, 403)
