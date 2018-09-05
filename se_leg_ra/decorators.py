@@ -60,6 +60,23 @@ def is_al2():
                 return True
     current_app.logger.warning('Not accepted assurance ({}) from {}'.format(assurance, entity_id))
     return False
+
+
+def is_mfa():
+    """
+    Require MFA by default but with a list of exceptions.
+
+    :return: True/False
+    :rtype: Boolean
+    """
+    entity_id = request.environ.get('HTTP_SHIB_IDENTITY_PROVIDER', None)
+    if entity_id in current_app.config['MFA_IDP_EXCEPTIONS']:
+        current_app.logger.info('Not checking authn context class from {}'.format(entity_id))
         return True
-    current_app.logger.warning('Assertion from {} asserted {} assurance'.format(entity_id, assurance))
+    authn_context_class = request.environ.pop('HTTP_SHIB_AUTHNCONTEXT_CLASS', None)
+    if authn_context_class in current_app.config['MFA_AUTHN_CONTEXT_CLASSES']:
+        current_app.logger.info('Assertion from {} asserted {} authn context class'.format(entity_id,
+                                                                                           authn_context_class))
+        return True
+    current_app.logger.warning('Not accepted authn context class ({}) from {}'.format(authn_context_class, entity_id))
     return False
