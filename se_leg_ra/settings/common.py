@@ -26,7 +26,12 @@ LOG_LEVEL = 'INFO'
 
 # App settings
 LOGOUT_URL = ''
+
+AL2_ASSURANCES = []
 AL2_IDP_EXCEPTIONS = []
+
+MFA_AUTHN_CONTEXT_CLASSES = []
+MFA_IDP_EXCEPTIONS = []
 
 # Authentication info for OP
 RA_APP_ID = ''
