@@ -2,8 +2,7 @@
 
 from functools import wraps
 from six import string_types
-from flask import request, current_app, abort
-
+from flask import request, current_app, abort, redirect
 __author__ = 'lundberg'
 
 
@@ -11,6 +10,10 @@ def require_eppn(f):
     @wraps(f)
     def require_eppn_decorator(*args, **kwargs):
         eppn = request.environ.pop('HTTP_EPPN', None)
+        if not eppn:
+            # Redirect user to login page
+            current_app.logger.info('No eppn found, redirecting to log in page')
+            return redirect(current_app.config['LOGIN_URL'])
 
         # Check if the assertion contains an AL2 assurance or if it
         # is coming from an IdP that is in the exceptions list

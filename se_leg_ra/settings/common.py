@@ -25,6 +25,10 @@ SECRET_KEY = None
 LOG_LEVEL = 'INFO'
 
 # App settings
+LOGIN_URL = '/login/'
+LOGIN_ALTERNATIVES = [
+    {'name': 'a_name', 'url': 'an_url'}
+]
 LOGOUT_URL = ''
 
 AL2_ASSURANCES = []

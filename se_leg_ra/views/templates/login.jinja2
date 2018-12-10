@@ -1,0 +1,15 @@
+{% extends "base.jinja2" %}
+
+{% block title %}{{ super() }} - Logga in{% endblock %}
+
+{% block content %}
+    <h3>Välj inloggingsalternativ:</h3>
+    <div class="list-group col-md-4">
+    {% for item in login_alternatives %}
+        <a href="{{ item.url }}" class="list-group-item ">
+            <h4 class="list-group-item-heading">{{ item.name }}</h4>
+            <p class="list-group-item-text">{{ item.description }}</p>
+        </a>
+    {% endfor %}
+    </div>
+{% endblock %}

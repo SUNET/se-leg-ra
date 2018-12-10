@@ -32,6 +32,13 @@ def index(user):
     return render_template('drivers_license.jinja2', view_context=view_context)
 
 
+@se_leg_ra_views.route('/login', methods=['GET'])
+def login():
+    current_app.logger.debug('GET login')
+    login_dict = current_app.config['LOGIN_ALTERNATIVES']
+    return render_template('login.jinja2', login_alternatives=login_dict)
+
+
 @se_leg_ra_views.route('/id-card', methods=['GET', 'POST'])
 @require_eppn
 def id_card(user):
