@@ -30,7 +30,7 @@ class SeLegRATests(TestCase):
             'SERVER_NAME': 'localhost',
             'SECRET_KEY': 'testing',
             'TESTING': True,
-            'DB_URI': self.mongo_instance.get_uri(),
+            'DB_URI': self.mongo_instance.uri,
             'RA_APP_ID': 'test_ra_app',
             'VETTING_ENDPOINT': 'http://op/vetting-result',
             'WTF_CSRF_ENABLED': False,
