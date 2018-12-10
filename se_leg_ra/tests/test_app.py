@@ -74,7 +74,8 @@ class SeLegRATests(TestCase):
 
     def test_index_not_logged_in(self):
         rv = self.client.get('/')
-        self.assertEqual(rv.status_code, 403)
+        self.assertEqual(rv.status_code, 302)
+        self.assertEqual(rv.location, 'http://localhost/login/')
 
     def test_index_logged_in(self):
         rv = self.client.get('/', environ_base=self.auth_env)
