@@ -122,6 +122,14 @@ class SeLegRATests(TestCase):
         rv = self.client.get('/', environ_base=auth_env)
         self.assertEqual(rv.status_code, 200)
 
+    def test_index_log_in_assuarance_multivalue_string(self):
+        auth_env = {
+            'HTTP_EPPN': self.test_user_eppn,
+            'HTTP_ASSURANCE': 'http://www.swamid.se/policy/assurance/al1;http://www.swamid.se/policy/assurance/al2'
+        }
+        rv = self.client.get('/', environ_base=auth_env)
+        self.assertEqual(rv.status_code, 200)
+
     def test_index_log_in_assuarance_list_al1(self):
         auth_env = {
             'HTTP_EPPN': self.test_user_eppn,

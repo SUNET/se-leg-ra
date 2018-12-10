@@ -55,7 +55,7 @@ def is_al2():
     if assurance:
         # Allow for both a single string and a list of assurances
         if isinstance(assurance, string_types):
-            assurance = [assurance]
+            assurance = assurance.split(';')
         # Check allowed assurances against supplied ones
         for item in current_app.config['AL2_ASSURANCES']:
             if item in assurance:
