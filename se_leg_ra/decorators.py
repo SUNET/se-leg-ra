@@ -11,8 +11,10 @@ def require_eppn(f):
     def require_eppn_decorator(*args, **kwargs):
         eppn = request.environ.pop('HTTP_EPPN', None)
         if not eppn:
+            eppn = request.environ.pop('HTTP_PERSONALIDENTITYNUMBER', None)  # Sweden connect
+        if not eppn:
             # Redirect user to login page
-            current_app.logger.info('No eppn found, redirecting to log in page')
+            current_app.logger.info('No eppn or personal identity number found, redirecting to log in page')
             return redirect(current_app.config['LOGIN_URL'])
 
         # Check if the assertion contains an AL2 assurance or if it
@@ -24,12 +26,13 @@ def require_eppn(f):
         # If the logged in user is whitelisted then we
         # pass on the request to the decorated view
         # together with a dict of user attributes.
-        if eppn and current_app.user_db.is_whitelisted(eppn):
+        if current_app.user_db.is_whitelisted(eppn):
             user = {
                 'eppn': eppn,
-                'given_name': request.environ.pop('HTTP_GIVENNAME', None),
-                'surname': request.environ.pop('HTTP_SN', None),
-                'display_name': request.environ.pop('HTTP_DISPLAYNAME', None),
+                # Shibboleth apparently uses latin-1.
+                'given_name': bytes(request.environ.pop('HTTP_GIVENNAME', ''), 'latin-1').decode('utf-8'),
+                'surname': bytes(request.environ.pop('HTTP_SN', ''), 'latin-1').decode('utf-8'),
+                'display_name': bytes(request.environ.pop('HTTP_DISPLAYNAME', ''), 'latin-1').decode('utf-8'),
             }
             kwargs['user'] = user
             current_app.user_db.update_user(user)
@@ -52,6 +55,8 @@ def is_al2():
         current_app.logger.warning('Not checking assurance from {}.'.format(entity_id))
         return True
     assurance = request.environ.pop('HTTP_ASSURANCE', None)
+    if not assurance:
+        assurance = request.environ.pop('HTTP_SHIB_AUTHENTICATION_METHOD', None)  # Sweden Connect
     if assurance:
         # Allow for both a single string and a list of assurances
         if isinstance(assurance, string_types):
