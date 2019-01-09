@@ -17,6 +17,7 @@ workers=${workers-1}
 worker_class=${worker_class-sync}
 worker_threads=${worker_threads-1}
 worker_timeout=${worker_timeout-30}
+request_fields_limit=${request_fields_limit-200}
 
 # set PYTHONPATH if it is not already set using Docker environment
 export PYTHONPATH=${PYTHONPATH-${project_dir}}
@@ -53,5 +54,6 @@ exec start-stop-daemon --start -c seleg:seleg --exec \
      --workers ${workers} --worker-class ${worker_class} \
      --threads ${worker_threads} --timeout ${worker_timeout} \
      --capture-output \
+     --limit-request-fields ${request_fields_limit} \
      ${extra_args} se_leg_ra.run:app
 
